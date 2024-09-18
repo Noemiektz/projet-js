@@ -1,6 +1,8 @@
-import { getArticles, addArticle, deleteArticle, updateArticle} from './db.js' //importer le fichier de la base
+import { getArticles, addArticle, deleteArticle, updateArticle, addUser, findUserByEmail} from './db.js' //importer le fichier de la base
 import express from 'express'
 import { ObjectId } from 'mongodb';
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
 
 import cors from 'cors';
 
@@ -11,18 +13,17 @@ var corsOptions = {
 
 
 
-
-
-
-
-
 const app = express()
 const port = 3000
 
+const JWT_SECRET = 'secret_key'; // Clé secrète pour signer les JWT
 
 app.use(cors())
 
 app.use(express.json());
+
+
+
 
 var articles = []
 
@@ -36,8 +37,66 @@ app.get('/', (req, res) => {
 
 
 
+// Route pour l'inscription
+app.post('/register', async (req, res) => {
+  const { email, password } = req.body;
 
-app.get('/articles', async (req, res) => {
+  // Vérifier si l'utilisateur existe déjà
+  const existingUser = await findUserByEmail(email);
+  if (existingUser) {
+    return res.status(400).json({ error: 'Cet email est déjà utilisé' });
+  }
+
+  try {
+    await addUser(email, password);
+    res.status(201).json({ message: 'Utilisateur créé avec succès' });
+  } catch (err) {
+    res.status(500).json({ error: 'Erreur lors de la création de l\'utilisateur', details: err.message });
+  }
+});
+
+// Route pour la connexion
+app.post('/login', async (req, res) => {
+  const { email, password } = req.body;
+
+  const user = await findUserByEmail(email);
+  if (!user) {
+    return res.status(400).json({ error: 'Email ou mot de passe incorrect' });
+  }
+
+  // Vérifier le mot de passe
+  const isPasswordValid = await bcrypt.compare(password, user.password);
+  if (!isPasswordValid) {
+    return res.status(400).json({ error: 'Email ou mot de passe incorrect' });
+  }
+
+  // Générer un token JWT
+  const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '1h' });
+  res.status(200).json({ token });
+});
+
+/* ----- Middleware pour protéger les routes ----- */
+
+function authenticateToken(req, res, next) {
+  const token = req.headers['authorization'];
+  if (!token) {
+    return res.status(401).json({ error: 'Accès refusé' });
+  }
+
+  jwt.verify(token, JWT_SECRET, (err, user) => {
+    if (err) {
+      return res.status(403).json({ error: 'Token invalide ou expiré' });
+    }
+    req.user = user;
+    next();
+  });
+}
+
+
+
+
+
+app.get('/articles' , authenticateToken, async (req, res) => {
   try {
     
     const articles = await getArticles();

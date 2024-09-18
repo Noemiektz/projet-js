@@ -1,5 +1,6 @@
 const { MongoClient, ObjectId } = require('mongodb') ;
 const uri = "mongodb://localhost:27017";
+import bcrypt from 'bcryptjs';
 
 
 
@@ -8,6 +9,34 @@ function getClient(){
   const client = new MongoClient(uri);
   return client;
 }
+
+
+async function findUserByEmail(email) {
+  const { client, collection } = getCollection(getClient(), 'users');
+  try {
+    await client.connect();
+    return await collection.findOne({ email });
+  } catch (error) {
+    throw error;
+  } finally {
+    await client.close();
+  }
+}
+
+async function addUser(email, password) {
+  const { client, collection } = getCollection(getClient(), 'users');
+  try {
+    await client.connect();
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const result = await collection.insertOne({ email, password: hashedPassword });
+    return result;
+  } catch (error) {
+    throw error;
+  } finally {
+    await client.close();
+  }
+}
+
 
 function getCollection(client){
   const db = client.db("articleManager"); 
@@ -77,7 +106,10 @@ module.exports = {
   getArticles,
   addArticle,
   deleteArticle,
-  updateArticle
+  updateArticle,
+  findUserByEmail,
+  addUser
+
   
 
 }
