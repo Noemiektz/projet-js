@@ -15,7 +15,7 @@ function getCollection(client){
   return { client, collection };
 }
 
-async function getArticles() {
+ async function getArticles() {
   const {collection} = getCollection(getClient())
   try {
     return await collection.find({}).toArray();
@@ -28,18 +28,32 @@ async function getArticles() {
 }
 
 
-
-
-async function addArticle(nom, description) {
-  // const db = await connectToMongo(); //connexion bdd
-  // const collection = db.collection('tasks');
-  // const task: Task = {
-  //   nom,
-  //   description,
-  //   taskIdCounter: Date.now(), // Utiliser un identifiant basé sur le timestamp pour l'unicité
-  // };
-  // await collection.insertOne(task);
+// Fonction pour ajouter un article
+ async function addArticle(nom, description) {
+  const { client, collection } = getCollection(getClient());
+  try {
+    await client.connect();
+    const result = await collection.insertOne({ nom, description });
+    return result.ops[0]; // Retourne l'article ajouté
+  } catch (error) {
+    console.error('Erreur lors de l\'ajout de l\'article:', error);
+    throw error;
+  } finally {
+    await client.close();
+  }
 }
+
+
+// async function addArticle(nom, description) {
+//   // const db = await connectToMongo(); //connexion bdd
+//   // const collection = db.collection('tasks');
+//   // const task: Task = {
+//   //   nom,
+//   //   description,
+//   //   taskIdCounter: Date.now(), // Utiliser un identifiant basé sur le timestamp pour l'unicité
+//   // };
+//   // await collection.insertOne(task);
+// }
 
 module.exports = {
   getArticles,
