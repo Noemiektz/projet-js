@@ -2,10 +2,25 @@ import { getArticles, addArticle, deleteArticle, updateArticle} from './db.js' /
 import express from 'express'
 import { ObjectId } from 'mongodb';
 
+import cors from 'cors';
+
+var corsOptions = {
+  origin: 'http://localhost:5173/',
+  optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+}
+
+
+
+
+
+
+
+
 const app = express()
 const port = 3000
 
 
+app.use(cors())
 
 app.use(express.json());
 
