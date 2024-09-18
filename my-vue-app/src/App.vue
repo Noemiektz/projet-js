@@ -19,7 +19,16 @@ export default {
 </script>
 
 <style>
-/* Style pour le header et le lien de navigation */
+
+
+
+body{
+  background-color: #bfd9ff;
+}
+
+h1{
+  color: black;
+}
 nav {
   margin-bottom: 20px;
 }

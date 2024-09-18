@@ -1,76 +1,89 @@
+<!-- src/components/ArticleList.vue -->
 <template>
-  <div class="article-list">
-    <h1>Liste des Articles</h1>
-    <div v-if="loading" class="loading">Chargement...</div>
-    <div v-else-if="error" class="error">{{ error }}</div>
-    <ul v-else>
+  <div>
+    <h1>Liste des articles</h1>
+    
+    <ul>
       <li v-for="article in articles" :key="article._id">
-        <h2>{{ article.nom }}</h2>
-        <p>{{ article.description }}</p>
+        {{ article.nom }} - {{ article.description }}
+        <!-- Bouton poubelle pour supprimer -->
+        <button @click="deleteArticle(article._id)" class="delete-button">
+          🗑️
+        </button>
       </li>
     </ul>
   </div>
 </template>
 
 <script>
-import { ref, onMounted } from 'vue';
-
 export default {
-  name: 'ArticleList',
-  setup() {
-    const articles = ref([]);
-    const loading = ref(true);
-    const error = ref(null);
-
-    const fetchArticles = async () => {
+  data() {
+    return {
+      articles: [],
+    };
+  },
+  methods: {
+    async fetchArticles() {
       try {
         const response = await fetch('http://localhost:3000/articles');
-        if (!response.ok) throw new Error('Erreur lors de la récupération des articles');
-        articles.value = await response.json();
-      } catch (err) {
-        error.value = err.message;
-      } finally {
-        loading.value = false;
+        if (!response.ok) {
+          throw new Error('Erreur lors de la récupération des articles');
+        }
+        const data = await response.json();
+        this.articles = data;
+      } catch (error) {
+        console.error('Failed to fetch articles:', error);
       }
-    };
-
-    onMounted(() => {
-      fetchArticles();
-    });
-
-    return {
-      articles,
-      loading,
-      error
-    };
+    },
+    
+    // Méthode pour supprimer un article
+    async deleteArticle(id) {
+      try {
+        const response = await fetch(`http://localhost:3000/delete/${id}`, {
+          method: 'DELETE',
+        });
+        if (!response.ok) {
+          throw new Error('Erreur lors de la suppression de l\'article');
+        }
+        
+        // Actualise la liste des articles après suppression
+        this.articles = this.articles.filter(article => article._id !== id);
+        alert('Article supprimé avec succès');
+      } catch (error) {
+        console.error('Failed to delete article:', error);
+        alert('Erreur lors de la suppression de l\'article');
+      }
+    }
+  },
+  mounted() {
+    this.fetchArticles(); // Appel pour récupérer les articles au montage du composant
   }
 };
 </script>
 
-<style scoped>
-
-h1{
-  color: black;
-}
-.article-list {
-  padding: 20px;
-}
-.loading {
-  font-size: 18px;
-  color: #888;
-}
-.error {
-  color: red;
-}
+<style>
+/* Style pour la liste et les boutons */
 ul {
   list-style-type: none;
   padding: 0;
 }
+
 li {
-  border-bottom: 1px solid #ddd;
-  padding: 10px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
 }
-h2 {
-  margin: 0;
+
+.delete-button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  color: red;
+}
+
+.delete-button:hover {
+  color: darkred;
 }
 </style>
