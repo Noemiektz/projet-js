@@ -1,4 +1,4 @@
-const { MongoClient } = require('mongodb') ;
+const { MongoClient, ObjectId } = require('mongodb') ;
 const uri = "mongodb://localhost:27017";
 
 
@@ -28,36 +28,56 @@ function getCollection(client){
 }
 
 
-// Fonction pour ajouter un article
  async function addArticle(nom, description) {
   const { client, collection } = getCollection(getClient());
   try {
-    await client.connect();
+    await client.connect(); // Etablir la connexion
+  
     const result = await collection.insertOne({ nom, description });
-    return result.ops[0]; // Retourne l'article ajouté
+
+    return { _id: result.insertedId, nom, description }; // Retourne l'article avec son nouvel ID
   } catch (error) {
-    console.error('Erreur lors de l\'ajout de l\'article:', error);
-    throw error;
+    throw error; // Relance l'erreur pour qu'elle soit capturée au niveau supérieur
+  } finally {
+    await client.close(); // Fermer la connexion MongoDB
+   
+  }
+}
+
+
+async function deleteArticle(id) {
+  const { client, collection } = getCollection(getClient());
+  try {
+    await client.connect();
+    const result = await collection.deleteOne({ _id: new ObjectId(id) });
+    return result;
   } finally {
     await client.close();
   }
 }
 
 
-// async function addArticle(nom, description) {
-//   // const db = await connectToMongo(); //connexion bdd
-//   // const collection = db.collection('tasks');
-//   // const task: Task = {
-//   //   nom,
-//   //   description,
-//   //   taskIdCounter: Date.now(), // Utiliser un identifiant basé sur le timestamp pour l'unicité
-//   // };
-//   // await collection.insertOne(task);
-// }
+async function updateArticle(id, updatedData) {
+  const { client, collection } = getCollection(getClient());
+  try {
+    await client.connect();
+    return await collection.updateOne(
+      { _id: new ObjectId(id) },
+      { $set: updatedData }
+    );
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour de l\'article:', error);
+    throw error;
+  } finally {
+    await client.close();
+  }
+}
 
 module.exports = {
   getArticles,
   addArticle,
+  deleteArticle,
+  updateArticle
   
 
 }
