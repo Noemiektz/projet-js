@@ -24,17 +24,26 @@ export default {
   },
   methods: {
     async fetchArticles() {
-      try {
-        const response = await fetch('http://localhost:3000/articles');
-        if (!response.ok) {
-          throw new Error('Erreur lors de la récupération des articles');
-        }
-        const data = await response.json();
-        this.articles = data;
-      } catch (error) {
-        console.error('Failed to fetch articles:', error);
-      }
-    },
+  try {
+    const token = localStorage.getItem('token'); // Récupère le token du localStorage
+    const response = await fetch('http://localhost:3000/articles', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`, // Ajoute le token dans l'en-tête Authorization
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Erreur lors de la récupération des articles');
+    }
+
+    const data = await response.json();
+    this.articles = data;
+  } catch (error) {
+    console.error('Failed to fetch articles:', error);
+  }
+},
     
     // Méthode pour supprimer un article
     async deleteArticle(id) {

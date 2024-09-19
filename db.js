@@ -1,6 +1,11 @@
-const { MongoClient, ObjectId } = require('mongodb') ;
+// import { MongoClient, ObjectId } from 'mongodb';
+// import bcrypt from 'bcryptjs';
+
+const { MongoClient, ObjectId } = require('mongodb');
+const bcrypt = require('bcryptjs');
+
+
 const uri = "mongodb://localhost:27017";
-import bcrypt from 'bcryptjs';
 
 
 
@@ -10,6 +15,51 @@ function getClient(){
   return client;
 }
 
+
+async function register() {
+  try {
+    const response = await fetch('http://localhost:3000/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email: this.email, password: this.password }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Erreur lors de l\'inscription');
+    }
+
+    alert('Inscription réussie, vous pouvez maintenant vous connecter.');
+    this.$router.push('/login');
+  } catch (error) {
+    console.error('Erreur d\'inscription:', error);
+    alert('Erreur lors de l\'inscription');
+  }
+}
+
+async function login() {
+  try {
+    const response = await fetch('http://localhost:3000/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email: this.email, password: this.password }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Erreur lors de la connexion');
+    }
+
+    const data = await response.json();
+    localStorage.setItem('token', data.token);
+    this.$router.push('/'); // Redirection vers la page d'accueil ou une autre page protégée
+  } catch (error) {
+    console.error('Erreur de connexion:', error);
+    alert('Erreur lors de la connexion');
+  }
+}
 
 async function findUserByEmail(email) {
   const { client, collection } = getCollection(getClient(), 'users');
@@ -108,7 +158,9 @@ module.exports = {
   deleteArticle,
   updateArticle,
   findUserByEmail,
-  addUser
+  addUser,
+  register,
+  login
 
   
 

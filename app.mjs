@@ -1,10 +1,19 @@
-import { getArticles, addArticle, deleteArticle, updateArticle, addUser, findUserByEmail} from './db.js' //importer le fichier de la base
+// import { getArticles, addArticle, deleteArticle, updateArticle, addUser, findUserByEmail} from './db.js' //importer le fichier de la base
+const { getArticles, addArticle, deleteArticle, updateArticle, addUser, findUserByEmail } = db;
+
+import * as db from './db.js';
+
+
 import express from 'express'
 import { ObjectId } from 'mongodb';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
-
 import cors from 'cors';
+
+
+
+
+
 
 var corsOptions = {
   origin: 'http://localhost:5173/',
@@ -39,9 +48,9 @@ app.get('/', (req, res) => {
 
 // Route pour l'inscription
 app.post('/register', async (req, res) => {
+  console.log('here')
   const { email, password } = req.body;
 
-  // Vérifier si l'utilisateur existe déjà
   const existingUser = await findUserByEmail(email);
   if (existingUser) {
     return res.status(400).json({ error: 'Cet email est déjà utilisé' });
@@ -96,7 +105,7 @@ function authenticateToken(req, res, next) {
 
 
 
-app.get('/articles' , authenticateToken, async (req, res) => {
+app.get('/articles' , async (req, res) => {
   try {
     
     const articles = await getArticles();

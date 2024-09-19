@@ -2,17 +2,29 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import ArticleList from './components/ArticleList.vue';
 import NewArticle from './components/NewArticle.vue';
+import Login from './components/Login.vue';
+import Register from './components/Register.vue';
 
 const routes = [
   {
     path: '/articles',
     name: 'articles',
-    component: ArticleList, // Page par défaut qui affiche les articles
+    component: ArticleList, 
   },
   {
     path: '/new',
     name: 'NewArticle',
-    component: NewArticle, // Page pour ajouter un nouvel article
+    component: NewArticle, 
+  },
+  {
+    path: '/register',
+    name: 'register',
+    component: Register, 
+  },
+  {
+    path: '/login',
+    name: 'login',
+    component: Login, 
   },
 ];
 
