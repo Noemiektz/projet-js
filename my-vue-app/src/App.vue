@@ -1,9 +1,15 @@
 <!-- src/App.vue -->
 <template>
   <div id="app">
-    <button><a href="/register">Inscription</a></button>
-    <button><a href="/login">Connexion</a></button>
-
+    <div v-if="!isLoggedIn">
+      <button><a href="/register">Inscription</a></button>
+      <button><a href="/login">Connexion</a></button>
+    </div>
+    
+    <!-- Afficher le bouton Déconnexion si l'utilisateur est connecté -->
+    <div v-else>
+      <button @click="logout">Déconnexion</button>
+    </div>
     <h1>Gestion des Articles</h1>
     <nav>
       <router-link to="/articles">Liste des articles</router-link>
@@ -19,6 +25,26 @@
 <script>
 export default {
   name: 'App',
+  data() {
+    return {
+      isLoggedIn: false,
+    };
+  },
+  methods: {
+    checkAuthStatus() {
+      // Vérifie la présence du jeton dans le localStorage pour déterminer si l'utilisateur est connecté
+      this.isLoggedIn = !!localStorage.getItem('token');
+    },
+    logout() {
+      // Supprime le jeton et redirige vers la page de connexion
+      localStorage.removeItem('token');
+      this.isLoggedIn = false;
+      this.$router.push('/login');
+    }
+  },
+  created() {
+    this.checkAuthStatus(); // Vérifie le statut d'authentification au démarrage du composant
+  }
 };
 
 </script>
