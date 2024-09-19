@@ -1,11 +1,15 @@
 <!-- src/App.vue -->
 <template>
   <div id="app">
+    <button><a href="/register">Inscription</a></button>
+    <button><a href="/login">Connexion</a></button>
+
     <h1>Gestion des Articles</h1>
     <nav>
       <router-link to="/articles">Liste des articles</router-link>
       <router-link to="/new">Ajouter un nouvel article</router-link>
     </nav>
+
     
     <!-- Cette section affichera le composant correspondant à la route actuelle -->
     <router-view />
@@ -16,6 +20,7 @@
 export default {
   name: 'App',
 };
+
 </script>
 
 <style>
@@ -43,4 +48,6 @@ nav a.router-link-active {
   font-weight: bold;
   color: green;
 }
+
+
 </style>

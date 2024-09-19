@@ -103,7 +103,10 @@ function authenticateToken(req, res, next) {
 
 
 
-
+app.post('/logout', (req, res) => {
+  // Ici, tu peux ajouter des opérations de nettoyage ou d'invalidation du jeton côté serveur si nécessaire
+  res.status(200).json({ message: 'Déconnexion réussie' });
+});
 
 app.get('/articles' , async (req, res) => {
   try {

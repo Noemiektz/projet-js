@@ -61,6 +61,23 @@ async function login() {
   }
 }
 
+async function logout() {
+  try {
+    await fetch('http://localhost:3000/logout', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+  } catch (error) {
+    console.error('Erreur lors de la déconnexion:', error);
+  } finally {
+    localStorage.removeItem('token');
+    this.$router.push('/login');
+  }
+}
+
+
 async function findUserByEmail(email) {
   const { client, collection } = getCollection(getClient(), 'users');
   try {
@@ -160,7 +177,8 @@ module.exports = {
   findUserByEmail,
   addUser,
   register,
-  login
+  login,
+  logout
 
   
 
